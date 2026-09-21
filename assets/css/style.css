@@ -168,6 +168,13 @@ body {
   height: 8px;
   border-radius: 50%;
   background: var(--success);
+  flex-shrink: 0;
+}
+
+.user-badge .user-avatar-icon {
+  display: none;
+  font-size: 0.95rem;
+  line-height: 1;
 }
 
 /* Sidebar Navigation */
