@@ -221,15 +221,13 @@ const StudentAuth = {
     if (!this.currentUser) return;
     const history = Utils.storage.get('quiz_attempts', []);
     
-    const enrichedAttempt = {
-      ...attempt,
-      studentId: this.currentUser.studentId,
-      studentName: this.currentUser.name,
-      classCode: this.currentUser.classCode,
-      nisn: this.currentUser.nisn
-    };
+    // Tempelkan identitas siswa ke objek attempt
+    attempt.studentId = this.currentUser.studentId;
+    attempt.studentName = this.currentUser.name;
+    attempt.classCode = this.currentUser.classCode;
+    attempt.nisn = this.currentUser.nisn;
 
-    history.push(enrichedAttempt);
+    history.push({ ...attempt });
     Utils.storage.set('quiz_attempts', history);
 
     this.addPoints(attempt.score);

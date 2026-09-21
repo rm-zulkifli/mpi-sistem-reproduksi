@@ -48,6 +48,26 @@ function handleSubmitQuiz(payload) {
     submittedAt
   ]);
 
+  // Pastikan data siswa juga otomatis tercatat di sheet Students jika belum ada
+  if (studentId && studentId !== "ANON") {
+    try {
+      const studentsSheet = getSheetSafe(CONFIG.SHEETS.STUDENTS);
+      const studentsData = studentsSheet.getDataRange().getValues();
+      let exists = false;
+      for (let i = 1; i < studentsData.length; i++) {
+        if (studentsData[i][0] == studentId) {
+          exists = true;
+          break;
+        }
+      }
+      if (!exists) {
+        studentsSheet.appendRow([studentId, "-", studentName, classCode, "Aktif", submittedAt]);
+      }
+    } catch (e) {
+      console.warn("Gagal auto-sync student:", e);
+    }
+  }
+
   return CONFIG.buildResponse(true, "Nilai kuis berhasil dihitung dan dicatat di server", {
     attempt_id: attemptId,
     score: calculatedScore,

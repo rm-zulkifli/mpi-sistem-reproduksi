@@ -267,9 +267,18 @@ const QuizEngine = {
       }
     }
 
+    // Ambil identitas siswa yang sedang mengerjakan
+    const currentUser = window.StudentAuth ? window.StudentAuth.currentUser : null;
+    const studentId = (currentUser && currentUser.studentId) ? currentUser.studentId : "ANON";
+    const studentName = (currentUser && currentUser.name && currentUser.name !== "Belum Mengisi Identitas") ? currentUser.name : "Siswa";
+    const classCode = (currentUser && currentUser.classCode) ? currentUser.classCode : "-";
+
     // Simpan riwayat attempt di lokal
     const attemptRecord = {
       attemptId: "ATT_" + Date.now(),
+      studentId: studentId,
+      studentName: studentName,
+      classCode: classCode,
       section: this.currentQuiz.section,
       score: finalScore,
       correctCount: correctCount,

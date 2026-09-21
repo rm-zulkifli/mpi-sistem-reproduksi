@@ -68,11 +68,16 @@ const ApiClient = {
   },
 
   async submitQuizToBackend(attemptRecord) {
+    const user = window.StudentAuth ? window.StudentAuth.currentUser : null;
+    const studentId = attemptRecord.studentId || (user && user.studentId ? user.studentId : "ANON");
+    const studentName = attemptRecord.studentName || (user && user.name && user.name !== "Belum Mengisi Identitas" ? user.name : "Siswa");
+    const classCode = attemptRecord.classCode || (user && user.classCode ? user.classCode : "-");
+
     const res = await this.postData('submitQuiz', {
       attempt_id: attemptRecord.attemptId,
-      student_id: attemptRecord.studentId,
-      student_name: attemptRecord.studentName,
-      class_code: attemptRecord.classCode,
+      student_id: studentId,
+      student_name: studentName,
+      class_code: classCode,
       section: attemptRecord.section,
       score: attemptRecord.score,
       total_questions: attemptRecord.totalQuestions,
