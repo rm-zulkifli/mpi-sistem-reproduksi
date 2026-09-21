@@ -7,6 +7,7 @@
 const ApiClient = {
   // URL bawaan deployment Google Apps Script Web App.
   // Jika diisi di sini, SEMUA perangkat siswa dan HP guru otomatis terhubung tanpa perlu setting manual!
+  defaultGasUrl: "https://script.google.com/macros/s/AKfycb.../exec",
   defaultGasUrl: "",
 
   gasUrl: "",
