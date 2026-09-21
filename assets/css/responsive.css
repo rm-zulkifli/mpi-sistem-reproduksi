@@ -1,0 +1,144 @@
+/* ==========================================================================
+   MPI SISTEM REPRODUKSI MANUSIA - KURIKULUM MERDEKA FASE D
+   Responsive Stylesheet (responsive.css)
+   ========================================================================== */
+
+/* Hamburger Button for Mobile */
+.menu-toggle-btn {
+  display: none;
+  background: transparent;
+  border: none;
+  font-size: 1.4rem;
+  color: var(--text-primary);
+  cursor: pointer;
+  padding: 0.4rem;
+  border-radius: var(--radius-sm);
+}
+
+.menu-toggle-btn:hover {
+  background: var(--bg-subtle);
+}
+
+/* Sidebar Overlay for Mobile */
+.sidebar-backdrop {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(2px);
+  z-index: 85;
+}
+
+.sidebar-backdrop.active {
+  display: block;
+}
+
+/* Tablet & Mobile Breakpoints (<= 1024px) */
+@media screen and (max-width: 1024px) {
+  .diagram-container {
+    grid-template-columns: 1fr;
+  }
+  
+  .diagram-info-panel {
+    min-height: auto;
+  }
+  
+  .cycle-visual-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Mobile Devices (<= 768px) */
+@media screen and (max-width: 768px) {
+  :root {
+    --header-height: 60px;
+  }
+
+  .menu-toggle-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .app-sidebar {
+    transform: translateX(-100%);
+    box-shadow: var(--shadow-xl);
+  }
+
+  .app-sidebar.open {
+    transform: translateX(0);
+  }
+
+  .app-main {
+    margin-left: 0;
+    width: 100%;
+    padding: 1.25rem 1rem;
+  }
+
+  .hero-banner {
+    padding: 1.75rem 1.25rem;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .hero-title {
+    font-size: 1.65rem;
+  }
+
+  .hero-subtitle {
+    font-size: 0.92rem;
+  }
+
+  .brand-text h1 {
+    font-size: 0.95rem;
+  }
+
+  .brand-text span {
+    display: none;
+  }
+
+  .modules-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .quiz-container {
+    padding: 1.25rem 1rem;
+  }
+
+  .quiz-header-bar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .cycle-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .modal-card {
+    padding: 1.25rem;
+  }
+}
+
+/* Small Smart Phones (<= 480px) */
+@media screen and (max-width: 480px) {
+  .hero-cta-group {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .hero-cta-group .btn {
+    width: 100%;
+  }
+
+  .user-badge span.user-name {
+    max-width: 90px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}

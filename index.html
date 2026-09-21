@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Media Pembelajaran Interaktif (MPI) Sistem Reproduksi Manusia untuk SMP/MTs Fase D Kurikulum Merdeka. PJJ Ready dengan Integrasi Google Spreadsheet.">
+  <meta name="theme-color" content="#1e40af">
+  <title>Sistem Reproduksi Manusia • MPI SMP/MTs Kurikulum Merdeka</title>
+
+  <!-- Google Fonts: Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="stylesheet" href="assets/css/responsive.css">
+  <link rel="stylesheet" href="assets/css/accessibility.css">
+</head>
+<body>
+  <!-- Skip to Content Link untuk Screen Reader -->
+  <a href="#app-content-area" class="skip-to-content">Langsung ke Konten Utama</a>
+
+  <!-- Canvas Efek Confetti (Perayaan Kelulusan) -->
+  <canvas id="confetti-canvas" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999;"></canvas>
+
+  <!-- Mobile Sidebar Backdrop Overlay -->
+  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+
+  <!-- Header / Navbar Aplikasi -->
+  <header class="app-header">
+    <div style="display: flex; align-items: center; gap: 0.75rem;">
+      <button class="menu-toggle-btn" id="btn-mobile-menu" aria-label="Buka Menu Navigasi">
+        ☰
+      </button>
+
+      <div class="brand-wrapper" data-route="home">
+        <div class="brand-icon">🧬</div>
+        <div class="brand-text">
+          <h1>SISTEM REPRODUKSI MANUSIA</h1>
+          <span>SMP/MTs • KURIKULUM MERDEKA • FASE D</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Header Actions (Profil & Kontrol Aksesibilitas) -->
+    <div class="header-actions">
+      <!-- Tombol Audio Toggle -->
+      <button class="btn-icon btn-secondary" id="btn-toggle-sound" title="Nyalakan/Matikan Suara" aria-label="Toggle Suara">
+        🔊
+      </button>
+
+      <!-- Tombol Kontras Tinggi -->
+      <button class="btn-icon btn-secondary" id="btn-toggle-contrast" title="Mode Kontras Tinggi" aria-label="Toggle Kontras">
+        🌓
+      </button>
+
+      <!-- Tombol Ukuran Huruf -->
+      <button class="btn-icon btn-secondary" id="btn-toggle-text-size" title="Perbesar Ukuran Teks" aria-label="Toggle Ukuran Huruf">
+        Aa
+      </button>
+
+      <!-- Badge Profil Pengguna (Siswa/Guru) -->
+      <div class="user-badge" id="user-profile-badge" title="Klik untuk mengubah data profil siswa">
+        <div class="role-indicator"></div>
+        <div style="display: flex; flex-direction: column; text-align: left; line-height: 1.1;">
+          <span class="user-name" id="header-user-name" style="font-weight: 700;">Siswa Belajar</span>
+          <span id="header-user-role" style="font-size: 0.7rem; opacity: 0.85;">Kelas 9-A</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Layout Utama Aplikasi: Sidebar Navigasi + Konten -->
+  <div class="app-container">
+    <!-- Sidebar Menu Navigasi (Sesuai Struktur Daftar Isi) -->
+    <aside class="app-sidebar" role="navigation" aria-label="Menu Pembelajaran">
+      <!-- Beranda -->
+      <button class="nav-item active" data-route="home">
+        <span class="nav-icon">🏠</span>
+        <span>Beranda Pembelajaran</span>
+      </button>
+
+      <!-- Bagian A -->
+      <div class="nav-section-title">A. Reproduksi Pria & Wanita</div>
+      <button class="nav-item" data-route="materi-a1">
+        <span class="nav-icon">♂️</span>
+        <span>1. Organ Reproduksi Pria</span>
+      </button>
+      <button class="nav-item" data-route="materi-a2">
+        <span class="nav-icon">♀️</span>
+        <span>2. Organ Reproduksi Wanita</span>
+      </button>
+      <button class="nav-item" data-route="quiz-a">
+        <span class="nav-icon">🎯</span>
+        <span>Ayo Uji Kemampuan A</span>
+        <span class="badge-count">10 Soal</span>
+      </button>
+
+      <!-- Bagian B -->
+      <div class="nav-section-title">B. Siklus Menstruasi</div>
+      <button class="nav-item" data-route="materi-b">
+        <span class="nav-icon">🩸</span>
+        <span>Siklus & Simulator 28 Hari</span>
+      </button>
+      <button class="nav-item" data-route="quiz-b">
+        <span class="nav-icon">🎯</span>
+        <span>Ayo Uji Kemampuan B</span>
+        <span class="badge-count">10 Soal</span>
+      </button>
+
+      <!-- Bagian C -->
+      <div class="nav-section-title">C. Siklus Hidup Manusia</div>
+      <button class="nav-item" data-route="materi-c1">
+        <span class="nav-icon">👶</span>
+        <span>1. Kehamilan dan Bayi</span>
+      </button>
+      <button class="nav-item" data-route="materi-c2">
+        <span class="nav-icon">🧒</span>
+        <span>2. Anak-anak</span>
+      </button>
+      <button class="nav-item" data-route="materi-c3">
+        <span class="nav-icon">🧑‍🎓</span>
+        <span>3. Remaja dan Pubertas</span>
+      </button>
+      <button class="nav-item" data-route="materi-c4">
+        <span class="nav-icon">👨‍💼</span>
+        <span>4. Dewasa</span>
+      </button>
+      <button class="nav-item" data-route="quiz-c">
+        <span class="nav-icon">🎯</span>
+        <span>Ayo Uji Kemampuan C</span>
+        <span class="badge-count">15 Soal</span>
+      </button>
+
+      <!-- Bagian D -->
+      <div class="nav-section-title">D. Keluarga Berencana</div>
+      <button class="nav-item" data-route="materi-d1">
+        <span class="nav-icon">👨‍👩‍👧</span>
+        <span>1. Kontrasepsi & Kesehatan</span>
+      </button>
+      <button class="nav-item" data-route="quiz-d">
+        <span class="nav-icon">🎯</span>
+        <span>Ayo Uji Kemampuan D</span>
+        <span class="badge-count">10 Soal</span>
+      </button>
+
+      <!-- Refleksi Pembelajaran -->
+      <div class="nav-section-title">Evaluasi & Refleksi</div>
+      <button class="nav-item" data-route="reflection">
+        <span class="nav-icon">📝</span>
+        <span>Refleksi Diri (Metode 3-2-1)</span>
+      </button>
+
+      <!-- Sidebar Footer (Portal Guru) -->
+      <div class="sidebar-footer">
+        <button class="nav-item" id="nav-teacher-portal" style="color: var(--primary-dark); font-weight: 700; background: #eff6ff;">
+          <span class="nav-icon">👨‍🏫</span>
+          <span>Portal Rekap Nilai Guru</span>
+        </button>
+        <div style="font-size: 0.72rem; color: var(--text-muted); text-align: center; margin-top: 0.5rem;">
+          Versi Profesional • PJJ & Offline Ready
+        </div>
+      </div>
+    </aside>
+
+    <!-- Area Utama Konten Dinamis -->
+    <main class="app-main" id="main-content">
+      <!-- Breadcrumb Bar -->
+      <div class="content-header-bar">
+        <div class="breadcrumb" id="breadcrumb-nav">
+          <span>Beranda</span>
+        </div>
+      </div>
+
+      <!-- Mount Target Konten yang Dirender Navigation.js -->
+      <div id="app-content-area">
+        <!-- Dimuat secara dinamis oleh navigation.js -->
+      </div>
+    </main>
+  </div>
+
+  <!-- MODAL: LOGIN / PROFIL IDENTITAS SISWA -->
+  <div class="modal-overlay" id="student-modal-overlay">
+    <div class="modal-card">
+      <button class="modal-close-btn" id="btn-close-student-modal" aria-label="Tutup Modal">✕</button>
+      <h3 style="font-size: 1.35rem; font-weight: 800; color: var(--primary-dark); margin-bottom: 0.5rem;">
+        👤 Identitas Peserta Didik
+      </h3>
+      <p style="font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 1.5rem;">
+        Masukkan data identitas Anda agar hasil kuis, progres materi, dan sertifikat tercatat dengan rapi pada database guru.
+      </p>
+
+      <form id="form-student-login">
+        <div class="form-group">
+          <label class="form-label">Nama Lengkap Siswa:</label>
+          <input type="text" id="input-student-name" class="form-input" placeholder="Contoh: Muhammad Budi Pratama" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">NISN / Nomor Induk Siswa:</label>
+          <input type="text" id="input-student-nisn" class="form-input" placeholder="Contoh: 0098765432">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Kelas / Rombel:</label>
+          <select id="input-student-class" class="form-select">
+            <option value="9-A">Kelas 9-A</option>
+            <option value="9-B">Kelas 9-B</option>
+            <option value="9-C">Kelas 9-C</option>
+            <option value="9-D">Kelas 9-D</option>
+            <option value="8-A">Kelas 8-A</option>
+            <option value="8-B">Kelas 8-B</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Nama Sekolah:</label>
+          <input type="text" id="input-student-school" class="form-input" placeholder="Contoh: SMP Negeri 1 Merdeka">
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem;">
+          <button type="submit" class="btn btn-primary">Simpan Identitas Siswa ✓</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: AKSES LOGIN PORTAL GURU -->
+  <div class="modal-overlay" id="teacher-modal-overlay">
+    <div class="modal-card" style="max-width: 440px;">
+      <button class="modal-close-btn" id="btn-close-teacher-modal" aria-label="Tutup Modal">✕</button>
+      <div style="text-align: center; margin-bottom: 1.25rem;">
+        <div style="font-size: 2.8rem;">🔐</div>
+        <h3 style="font-size: 1.3rem; font-weight: 800; color: var(--primary-dark); margin-top: 0.25rem;">
+          Akses Portal Guru / Admin
+        </h3>
+        <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.25rem;">
+          Masukkan PIN Guru untuk melihat rekap nilai, ekspor data, dan konfigurasi Google Spreadsheet.
+        </p>
+      </div>
+
+      <form id="form-teacher-login">
+        <div class="form-group">
+          <label class="form-label">PIN Akses Guru:</label>
+          <input type="password" id="input-teacher-pin" class="form-input" placeholder="Masukkan PIN Rahasia" style="text-align: center; font-size: 1.2rem; letter-spacing: 0.2em;" required>
+          <div id="teacher-lockout-msg" style="font-size: 0.78rem; color: var(--danger); margin-top: 0.4rem; text-align: center; font-weight: 600;"></div>
+          <span style="font-size: 0.73rem; color: var(--text-muted); margin-top: 0.35rem; display: block; text-align: center;">
+            (PIN Bawaan Awal: <strong>guru123</strong> — Guru dapat mengubah PIN di menu dashboard)
+          </span>
+        </div>
+
+        <div style="display: flex; gap: 0.75rem; margin-top: 1.5rem;">
+          <button type="submit" class="btn btn-primary" style="width: 100%;">Buka Dashboard Guru ▶</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL UMUM: PANDUAN, SERTIFIKAT, KONFIGURASI SPREADSHEET -->
+  <div class="modal-overlay" id="general-modal-overlay">
+    <div class="modal-card" id="general-modal-content">
+      <!-- Dimuat dinamis oleh Navigation.js -->
+    </div>
+  </div>
+
+  <!-- SCRIPTS LOAD ORDER: Utilitas -> Konten -> Komponen -> Logika Aplikasi -->
+  <script src="assets/js/utils.js"></script>
+  <script src="assets/content/reproductive-male.js"></script>
+  <script src="assets/content/reproductive-female.js"></script>
+  <script src="assets/content/menstruation.js"></script>
+  <script src="assets/content/life-cycle.js"></script>
+  <script src="assets/content/family-planning.js"></script>
+  
+  <script src="assets/components/interactive-diagram.js"></script>
+  <script src="assets/components/interactive-cycle.js"></script>
+  <script src="assets/components/interactive-activities.js"></script>
+  <script src="assets/components/quiz-card.js"></script>
+
+  <script src="assets/js/classes.js"></script>
+  <script src="assets/js/api.js"></script>
+  <script src="assets/js/auth.js"></script>
+  <script src="assets/js/progress.js"></script>
+  <script src="assets/js/navigation.js"></script>
+  <script src="assets/js/app.js"></script>
+</body>
+</html>
