@@ -79,7 +79,7 @@ const InteractiveDiagram = {
         <div style="position: relative; width: 100%; max-width: 540px; margin: 0 auto; user-select: none;">
           <img src="${this.images.male3D}" alt="Ilustrasi Medis 3D Anatomi Sistem Reproduksi Laki-laki" 
                style="width: 100%; height: auto; display: block; border-radius: var(--radius-md); box-shadow: 0 4px 14px rgba(0,0,0,0.08);"
-               onerror="this.onerror=null; InteractiveDiagram.fallbackToVector('male');">
+               onerror="InteractiveDiagram.handleImageError('male', this);">
 
           <!-- Overlay Hotspot Interaktif yang Glowing -->
           ${maleHotspots3D.map((spot, idx) => `
@@ -280,7 +280,7 @@ const InteractiveDiagram = {
         <div style="position: relative; width: 100%; max-width: 540px; margin: 0 auto; user-select: none;">
           <img src="${this.images.female3D}" alt="Ilustrasi Medis 3D Anatomi Sistem Reproduksi Perempuan" 
                style="width: 100%; height: auto; display: block; border-radius: var(--radius-md); box-shadow: 0 4px 14px rgba(0,0,0,0.08);"
-               onerror="this.onerror=null; InteractiveDiagram.fallbackToVector('female');">
+               onerror="InteractiveDiagram.handleImageError('female', this);">
 
           <!-- Overlay Hotspot Interaktif yang Glowing -->
           ${femaleHotspots3D.map((spot, idx) => `
@@ -440,8 +440,33 @@ const InteractiveDiagram = {
     }
   },
 
+  handleImageError(type, imgElement) {
+    console.warn(`[InteractiveDiagram] Berkas gambar 3D ${type} tidak dapat dimuat:`, imgElement ? imgElement.src : '');
+    const viewport = imgElement ? imgElement.closest('.diagram-render-viewport') : null;
+    if (viewport) {
+      const fileName = type === 'male' ? 'male_anatomy_3d.jpg' : 'female_anatomy_3d.jpg';
+      viewport.innerHTML = `
+        <div style="padding: 2.5rem 1.5rem; text-align: center; max-width: 440px; margin: 0 auto; background: #f8fafc; border-radius: var(--radius-md); border: 2px dashed #cbd5e1;">
+          <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">🖼️</div>
+          <h4 style="font-size: 1.05rem; font-weight: 700; color: #1e293b; margin-bottom: 0.35rem;">Berkas Gambar 3D Belum Diunggah</h4>
+          <p style="font-size: 0.82rem; color: #64748b; margin-bottom: 1.25rem; line-height: 1.5;">
+            Berkas gambar <code>assets/images/${fileName}</code> belum ditemukan di hosting Anda. Pastikan folder <code>assets/images</code> ikut diunggah ke repositori GitHub.
+          </p>
+          <button class="btn btn-primary btn-sm" id="btn-switch-to-vec-${type}">
+            ◀ Kembali ke Diagram Vektor 3D
+          </button>
+        </div>
+      `;
+      const btn = viewport.querySelector(`#btn-switch-to-vec-${type}`);
+      if (btn) {
+        btn.addEventListener('click', () => {
+          this.fallbackToVector(type);
+        });
+      }
+    }
+  },
+
   fallbackToVector(type) {
-    console.warn(`Fallback ke diagram vektor 3D untuk ${type}`);
     if (type === 'male') {
       this.maleViewMode = 'vector';
       this.renderMaleDiagram('male-diagram-svg', 'male-diagram-panel');
