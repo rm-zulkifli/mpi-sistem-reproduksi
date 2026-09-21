@@ -92,8 +92,8 @@ const StudentAuth = {
     return true;
   },
 
-  // Verifikasi PIN Guru dengan Proteksi Anti Brute-Force
-  loginTeacher(pin) {
+  // Verifikasi PIN Guru dengan Proteksi Anti Brute-Force & Cloud Sync
+  async loginTeacher(pin) {
     // Cek apakah sedang dalam masa lockout
     const lockoutUntil = Utils.storage.get('teacher_lockout_until', 0);
     const now = Date.now();
@@ -104,40 +104,74 @@ const StudentAuth = {
       return false;
     }
 
+    const trimmedPin = (pin || "").trim();
     const savedPin = Utils.storage.get('teacher_pin', 'guru123');
 
-    if (pin && pin.trim() === savedPin) {
-      this.currentRole = 'teacher';
-      this.failedAttempts = 0;
-      Utils.storage.remove('teacher_lockout_until');
-      this.saveSession();
-      this.updateUserUI();
-      Utils.showToast("Berhasil masuk sebagai Guru / Pengajar!", "success");
-      return true;
-    } else {
-      this.failedAttempts++;
-      const sisa = this.maxFailedAttempts - this.failedAttempts;
-
-      if (sisa <= 0) {
-        // Aktifkan Lockout selama 60 detik
-        const lockTime = Date.now() + (this.lockoutSeconds * 1000);
-        Utils.storage.set('teacher_lockout_until', lockTime);
-        this.failedAttempts = 0;
-        Utils.showToast(`Terdeteksi 3 kali salah PIN! Portal dikunci selama ${this.lockoutSeconds} detik demi keamanan.`, "error");
-      } else {
-        Utils.showToast(`PIN salah! Sisa percobaan: ${sisa} kali sebelum terkunci.`, "warning");
-      }
-      return false;
+    // 1. Cek kecocokan PIN di memori lokal perangkat
+    if (trimmedPin && trimmedPin === savedPin) {
+      return this._grantTeacherAccess();
     }
+
+    // 2. Jika di HP belum sinkron (misal ganti PIN di laptop), verifikasi ke backend cloud Google Apps Script
+    if (window.ApiClient && typeof window.ApiClient.isConfigured === 'function' && window.ApiClient.isConfigured()) {
+      try {
+        const check = await window.ApiClient.verifyTeacherPinOnBackend(trimmedPin);
+        if (check && check.success && check.data && check.data.valid) {
+          // Sinkronkan PIN baru ke LocalStorage HP ini
+          Utils.storage.set('teacher_pin', trimmedPin);
+          return this._grantTeacherAccess();
+        }
+      } catch (e) {
+        console.warn("Verifikasi PIN via backend cloud gagal:", e);
+      }
+    }
+
+    // 3. Jika gagal baik lokal maupun cloud:
+    this.failedAttempts++;
+    const sisa = this.maxFailedAttempts - this.failedAttempts;
+
+    if (sisa <= 0) {
+      // Aktifkan Lockout selama 60 detik
+      const lockTime = Date.now() + (this.lockoutSeconds * 1000);
+      Utils.storage.set('teacher_lockout_until', lockTime);
+      this.failedAttempts = 0;
+      Utils.showToast(`Terdeteksi 3 kali salah PIN! Portal dikunci selama ${this.lockoutSeconds} detik demi keamanan.`, "error");
+    } else {
+      Utils.showToast(`PIN salah! Sisa percobaan: ${sisa} kali sebelum terkunci.`, "warning");
+    }
+    return false;
   },
 
-  // Mengubah PIN Guru
-  changeTeacherPin(oldPin, newPin) {
+  _grantTeacherAccess() {
+    this.currentRole = 'teacher';
+    this.failedAttempts = 0;
+    Utils.storage.remove('teacher_lockout_until');
+    this.saveSession();
+    this.updateUserUI();
+    Utils.showToast("Berhasil masuk sebagai Guru / Pengajar!", "success");
+    return true;
+  },
+
+  // Mengubah PIN Guru dan menyelaraskan ke Cloud Spreadsheet
+  async changeTeacherPin(oldPin, newPin) {
     const savedPin = Utils.storage.get('teacher_pin', 'guru123');
 
     if (oldPin !== savedPin) {
-      Utils.showToast("PIN lama Anda salah!", "error");
-      return false;
+      // Cek apakah oldPin valid di backend cloud (misal jika PIN diubah dari perangkat lain)
+      let oldPinValidOnCloud = false;
+      if (window.ApiClient && typeof window.ApiClient.isConfigured === 'function' && window.ApiClient.isConfigured()) {
+        try {
+          const check = await window.ApiClient.verifyTeacherPinOnBackend(oldPin);
+          if (check && check.success && check.data && check.data.valid) {
+            oldPinValidOnCloud = true;
+          }
+        } catch (e) {}
+      }
+
+      if (!oldPinValidOnCloud) {
+        Utils.showToast("PIN lama Anda salah!", "error");
+        return false;
+      }
     }
 
     if (!newPin || newPin.trim().length < 4) {
@@ -145,7 +179,18 @@ const StudentAuth = {
       return false;
     }
 
-    Utils.storage.set('teacher_pin', newPin.trim());
+    const cleanNewPin = newPin.trim();
+    Utils.storage.set('teacher_pin', cleanNewPin);
+
+    // Sinkronkan ke Google Apps Script backend jika online
+    if (window.ApiClient && typeof window.ApiClient.isConfigured === 'function' && window.ApiClient.isConfigured()) {
+      window.ApiClient.changeTeacherPinOnBackend(oldPin, cleanNewPin).then(() => {
+        console.log("PIN Guru tersinkron ke cloud Google Apps Script.");
+      }).catch(err => {
+        console.warn("Gagal sinkron PIN ke cloud:", err);
+      });
+    }
+
     Utils.showToast("PIN Guru berhasil diperbarui dengan aman!", "success");
     return true;
   },

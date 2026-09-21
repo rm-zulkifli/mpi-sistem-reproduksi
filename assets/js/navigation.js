@@ -1603,7 +1603,7 @@ const Navigation = {
       overlay.classList.remove('active');
     });
 
-    content.querySelector('#form-change-pin').addEventListener('submit', (e) => {
+    content.querySelector('#form-change-pin').addEventListener('submit', async (e) => {
       e.preventDefault();
       const oldPin = document.getElementById('input-old-pin').value;
       const newPin = document.getElementById('input-new-pin').value;
@@ -1615,9 +1615,23 @@ const Navigation = {
       }
 
       if (window.StudentAuth) {
-        const success = window.StudentAuth.changeTeacherPin(oldPin, newPin);
-        if (success) {
-          overlay.classList.remove('active');
+        const submitBtn = content.querySelector('#form-change-pin button[type="submit"]');
+        const origText = submitBtn ? submitBtn.textContent : '';
+        if (submitBtn) {
+          submitBtn.disabled = true;
+          submitBtn.textContent = 'Menyimpan...';
+        }
+
+        try {
+          const success = await window.StudentAuth.changeTeacherPin(oldPin, newPin);
+          if (success) {
+            overlay.classList.remove('active');
+          }
+        } finally {
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = origText;
+          }
         }
       }
     });
@@ -1724,6 +1738,7 @@ const Navigation = {
     content.querySelector('#btn-save-gas-url').addEventListener('click', () => {
       const url = document.getElementById('input-gas-url').value;
       if (window.ApiClient) window.ApiClient.setGasUrl(url);
+      if (window.ClassManager) window.ClassManager.syncFromCloud();
       overlay.classList.remove('active');
       this.renderTeacherDashboardView(document.getElementById('app-content-area'));
     });

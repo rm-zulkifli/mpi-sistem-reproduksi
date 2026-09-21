@@ -102,3 +102,55 @@ function handleUpdateClasses(payload) {
   });
 }
 
+function handleGetClasses() {
+  const sheet = getSheetSafe(CONFIG.SHEETS.CLASSES);
+  const data = sheet.getDataRange().getValues();
+  const classesList = [];
+
+  for (let i = 1; i < data.length; i++) {
+    const classId = data[i][0];
+    const className = data[i][1];
+    if (classId && className) {
+      classesList.push({
+        id: classId.toString().trim(),
+        name: className.toString().trim()
+      });
+    }
+  }
+
+  return CONFIG.buildResponse(true, "Daftar kelas berhasil dimuat dari database", {
+    count: classesList.length,
+    classes: classesList
+  });
+}
+
+function handleVerifyTeacherPin(pin) {
+  const inputPin = (pin || "").toString().trim();
+  const savedPin = PropertiesService.getScriptProperties().getProperty("TEACHER_PIN") || "guru123";
+  const isValid = (inputPin === savedPin);
+
+  return CONFIG.buildResponse(isValid, isValid ? "PIN Guru valid" : "PIN Guru salah", {
+    valid: isValid
+  });
+}
+
+function handleChangeTeacherPin(payload) {
+  const oldPin = (payload.old_pin || "").toString().trim();
+  const newPin = (payload.new_pin || "").toString().trim();
+  const savedPin = PropertiesService.getScriptProperties().getProperty("TEACHER_PIN") || "guru123";
+
+  if (oldPin !== savedPin) {
+    return CONFIG.buildResponse(false, "PIN lama tidak sesuai!");
+  }
+
+  if (!newPin || newPin.length < 4) {
+    return CONFIG.buildResponse(false, "PIN baru minimal 4 karakter!");
+  }
+
+  PropertiesService.getScriptProperties().setProperty("TEACHER_PIN", newPin);
+  return CONFIG.buildResponse(true, "PIN Guru berhasil diperbarui di server cloud!", {
+    updated: true
+  });
+}
+
+

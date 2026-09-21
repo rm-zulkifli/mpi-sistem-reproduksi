@@ -23,6 +23,14 @@ function doGet(e) {
       return handleGetTeacherDashboard();
     }
 
+    if (action === "getClasses") {
+      return handleGetClasses();
+    }
+
+    if (action === "verifyTeacherPin") {
+      return handleVerifyTeacherPin(e.parameter.pin);
+    }
+
     return CONFIG.buildResponse(false, "Aksi GET tidak dikenali: " + action);
   } catch (err) {
     return CONFIG.buildResponse(false, "Terjadi kesalahan pada server: " + err.message);
@@ -60,6 +68,15 @@ function doPost(e) {
 
       case "updateClasses":
         return handleUpdateClasses(payload);
+
+      case "changeTeacherPin":
+        return handleChangeTeacherPin(payload);
+
+      case "getClasses":
+        return handleGetClasses();
+
+      case "verifyTeacherPin":
+        return handleVerifyTeacherPin(payload.pin);
 
       default:
         return CONFIG.buildResponse(false, "Aksi POST tidak didukung: " + action);

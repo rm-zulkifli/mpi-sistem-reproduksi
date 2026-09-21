@@ -150,17 +150,31 @@ function setupGlobalControls() {
   }
 
   if (teacherForm && teacherModal) {
-    teacherForm.addEventListener('submit', (e) => {
+    teacherForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       const pin = document.getElementById('input-teacher-pin').value;
       if (window.StudentAuth) {
-        const success = window.StudentAuth.loginTeacher(pin);
-        if (success) {
-          teacherModal.classList.remove('active');
-          document.getElementById('input-teacher-pin').value = '';
-          if (window.Navigation) window.Navigation.navigateTo('teacher-dashboard');
-        } else {
-          checkTeacherLockoutUI();
+        const submitBtn = teacherForm.querySelector('button[type="submit"]');
+        const origText = submitBtn ? submitBtn.textContent : '';
+        if (submitBtn) {
+          submitBtn.disabled = true;
+          submitBtn.textContent = 'Memverifikasi...';
+        }
+
+        try {
+          const success = await window.StudentAuth.loginTeacher(pin);
+          if (success) {
+            teacherModal.classList.remove('active');
+            document.getElementById('input-teacher-pin').value = '';
+            if (window.Navigation) window.Navigation.navigateTo('teacher-dashboard');
+          } else {
+            checkTeacherLockoutUI();
+          }
+        } finally {
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = origText;
+          }
         }
       }
     });

@@ -5,11 +5,16 @@
  */
 
 const ApiClient = {
-  // URL Web App GAS (dapat diganti melalui modal Pengaturan Guru)
+  // URL bawaan deployment Google Apps Script Web App.
+  // Jika diisi di sini, SEMUA perangkat siswa dan HP guru otomatis terhubung tanpa perlu setting manual!
+  defaultGasUrl: "",
+
   gasUrl: "",
 
   init() {
-    this.gasUrl = Utils.storage.get('gas_endpoint_url', '');
+    // Ambil dari LocalStorage perangkat jika ada, jika tidak gunakan defaultGasUrl
+    const saved = Utils.storage.get('gas_endpoint_url', '');
+    this.gasUrl = (saved && saved.trim().length > 0) ? saved.trim() : (this.defaultGasUrl || '').trim();
   },
 
   setGasUrl(newUrl) {
@@ -126,6 +131,70 @@ const ApiClient = {
   async updateClasses(classList) {
     return await this.postData('updateClasses', {
       classes: classList
+    });
+  },
+
+  async fetchClasses() {
+    if (!this.isConfigured()) {
+      return { success: false, offline: true, message: "GAS URL belum dikonfigurasi" };
+    }
+
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 7000);
+
+      const response = await fetch(`${this.gasUrl}?action=getClasses`, {
+        method: "GET",
+        signal: controller.signal
+      });
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+
+      const resJson = await response.json();
+      if (resJson && resJson.success && resJson.data && Array.isArray(resJson.data.classes)) {
+        return { success: true, classes: resJson.data.classes };
+      }
+      return { success: false, message: resJson.message || "Data kelas kosong" };
+    } catch (err) {
+      console.warn("fetchClasses error (offline fallback):", err);
+      return { success: false, error: err.message };
+    }
+  },
+
+  async verifyTeacherPinOnBackend(pin) {
+    if (!this.isConfigured()) {
+      return { success: false, offline: true, message: "Offline mode" };
+    }
+
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 6000);
+
+      const response = await fetch(`${this.gasUrl}?action=verifyTeacherPin&pin=${encodeURIComponent(pin)}`, {
+        method: "GET",
+        signal: controller.signal
+      });
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+
+      const resJson = await response.json();
+      return resJson;
+    } catch (err) {
+      console.warn("verifyTeacherPinOnBackend error:", err);
+      return { success: false, error: err.message };
+    }
+  },
+
+  async changeTeacherPinOnBackend(oldPin, newPin) {
+    return await this.postData('changeTeacherPin', {
+      old_pin: oldPin,
+      new_pin: newPin
     });
   },
 

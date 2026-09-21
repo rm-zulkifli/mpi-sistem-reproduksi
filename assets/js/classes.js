@@ -34,6 +34,25 @@ const ClassManager = {
     } else {
       this.populateAllSelects();
     }
+
+    // Ambil kelas terbaru dari Google Spreadsheet jika terhubung
+    this.syncFromCloud();
+  },
+
+  async syncFromCloud() {
+    if (!window.ApiClient || typeof window.ApiClient.isConfigured !== 'function' || !window.ApiClient.isConfigured()) {
+      return;
+    }
+
+    try {
+      const res = await window.ApiClient.fetchClasses();
+      if (res && res.success && Array.isArray(res.classes) && res.classes.length > 0) {
+        console.log(`[ClassManager] Berhasil memuat ${res.classes.length} kelas dari Google Spreadsheet.`);
+        this.saveAll(res.classes, false);
+      }
+    } catch (err) {
+      console.warn("[ClassManager] Gagal mengambil kelas dari cloud:", err);
+    }
   },
 
   getAll() {

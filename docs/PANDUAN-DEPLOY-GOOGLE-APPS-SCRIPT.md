@@ -53,9 +53,34 @@ Klik tombol **Save (Ikon Disket)** untuk menyimpan seluruh file.
 
 ---
 
-## Langkah 6: Sambungkan ke Aplikasi MPI
-1. Buka aplikasi web MPI Sistem Reproduksi Manusia di browser.
-2. Buka menu **Portal Rekap Nilai Guru** (PIN: `guru123`).
+## Langkah 6: Sambungkan ke Aplikasi MPI (Dua Cara)
+
+### Cara 1: Otomatis untuk Semua HP Siswa & Guru (Sangat Direkomendasikan untuk GitHub Pages)
+Agar seluruh perangkat HP siswa dan HP guru otomatis terhubung ke spreadsheet tanpa harus memasukkan URL satu per satu di setiap gawai:
+1. Buka berkas [assets/js/api.js](file:///c:/wamp64/www/MPI3/assets/js/api.js).
+2. Pada baris ke-10, masukkan Web App URL Anda ke `defaultGasUrl`:
+   ```javascript
+   defaultGasUrl: "https://script.google.com/macros/s/AKfycb.../exec",
+   ```
+3. Simpan berkas lalu *commit* & *push* kembali ke repositori GitHub Pages Anda (`git add . && git commit -m "Set default GAS URL" && git push`).
+4. **Hasilnya**: Seluruh HP siswa dan HP guru yang membuka web GitHub Pages langsung otomatis terhubung:
+   - Daftar nama kelas terbaru yang dibuat guru langsung tersinkron di dropdown HP siswa.
+   - Perubahan PIN Guru langsung terverifikasi secara aman di semua perangkat.
+   - Semua rekaman nilai kuis dan refleksi siswa langsung masuk ke Google Sheets.
+
+### Cara 2: Pengaturan Manual per Perangkat (Offline Fallback)
+1. Buka aplikasi web MPI di browser.
+2. Buka menu **Portal Rekap Nilai Guru** (PIN bawaan: `guru123`).
 3. Klik tombol **⚙️ Konfigurasi Spreadsheet API**.
 4. Tempelkan (Paste) Web App URL tadi, lalu klik **🔍 Uji Koneksi** dan klik **Simpan Konfigurasi**.
 5. Selesai! Kini setiap kali siswa menyelesaikan kuis atau mengisi refleksi, data nilai akan langsung tersimpan di Google Spreadsheet Anda secara *real-time*.
+
+---
+
+## ⚠️ Penting Saat Memperbarui Kode Google Apps Script:
+Jika Anda memperbarui kode di Google Apps Script (misalnya menambahkan fitur `getClasses` atau sinkronisasi PIN):
+1. Buka editor Google Apps Script.
+2. Klik tombol **Deploy** → **Manage deployments** (Kelola penerapan).
+3. Klik ikon pensil (**Edit**).
+4. Pada menu *Version*, pilih **New version** (Versi baru).
+5. Klik **Deploy** dan gunakan Web App URL tersebut. Hal ini memastikan script Google Anda mengeksekusi kode versi terbaru.
